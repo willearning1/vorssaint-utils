@@ -45,7 +45,7 @@ final class ScreenCaptureService: ObservableObject {
     private let toolHotkeys: [ScreenCaptureTool: QuickToolHotkey] = {
         var next: UInt32 = 25
         var hotkeys: [ScreenCaptureTool: QuickToolHotkey] = [:]
-        for tool in ScreenCaptureTool.allCases where tool.dedicatedShortcut != nil {
+        for tool in ScreenCaptureTool.allCases where tool != .screenshot && tool.dedicatedShortcut != nil {
             hotkeys[tool] = QuickToolHotkey(id: next)
             next += 1
         }
@@ -62,7 +62,7 @@ final class ScreenCaptureService: ObservableObject {
     }
 
     private init() {
-        hotkey.onPress = { [weak self] in self?.capture() }
+        hotkey.onPress = { [weak self] in self?.capture(initial: .screenshot) }
         for (tool, hotkey) in toolHotkeys {
             hotkey.onPress = { [weak self] in self?.capture(initial: tool) }
         }
@@ -84,7 +84,7 @@ final class ScreenCaptureService: ObservableObject {
             cancelSelection()
         }
         let defaults = UserDefaults.standard
-        let enabled = defaults.bool(forKey: DefaultsKey.screenshotShortcutEnabled)
+        let enabled = availableTools.contains(.screenshot) && defaults.bool(forKey: DefaultsKey.screenshotShortcutEnabled)
         let shortcut = GlobalShortcut.saved(for: DefaultsKey.screenshotShortcut,
                                             fallback: .screenshotDefault)
         shortcutRegistrationFailed = !hotkey.sync(enabled: enabled, shortcut: shortcut)
@@ -97,6 +97,9 @@ final class ScreenCaptureService: ObservableObject {
     private func syncToolShortcuts(availableTools: [ScreenCaptureTool],
                                    defaults: UserDefaults) {
         var failures: Set<ScreenCaptureTool> = []
+        if shortcutRegistrationFailed, availableTools.contains(.screenshot) {
+            failures.insert(.screenshot)
+        }
         for (tool, hotkey) in toolHotkeys {
             guard let keys = tool.dedicatedShortcut else { continue }
             let enabled = availableTools.contains(tool) && defaults.bool(forKey: keys.enabledKey)
