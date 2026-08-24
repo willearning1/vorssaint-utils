@@ -11,7 +11,6 @@ struct ScreenCaptureSettings: View {
     @ObservedObject private var router = SettingsRouter.shared
     @ObservedObject private var features = FeatureRuntime.shared
     @ObservedObject private var service = ScreenCaptureService.shared
-    @AppStorage(DefaultsKey.screenshotShortcutEnabled) private var shortcutEnabled = false
     @State private var selectedTool = ScreenCaptureTool.screenshot
 
     private var strings: ScreenshotFeatureStrings {
@@ -46,19 +45,6 @@ struct ScreenCaptureSettings: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
-                Toggle(l10n.s.quickToolShortcutToggle, isOn: $shortcutEnabled)
-                    .onChange(of: shortcutEnabled) { _, _ in
-                        service.syncWithPreferences()
-                    }
-                ShortcutPreferenceRow(role: .screenshot,
-                                      isEnabled: shortcutEnabled) {
-                    service.syncWithPreferences()
-                }
-                if shortcutEnabled, service.shortcutRegistrationFailed {
-                    Text(l10n.s.shortcutUnavailable)
-                        .font(.caption)
-                        .foregroundStyle(.orange)
-                }
                 if let keys = currentTool.dedicatedShortcut {
                     ToolShortcutRows(tool: currentTool, keys: keys)
                 }
