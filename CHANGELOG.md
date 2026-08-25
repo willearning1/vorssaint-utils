@@ -37,6 +37,7 @@ All notable changes to this project are documented here. The format follows
 - App Switcher now sizes its window and icon rows from a single shared width, preventing clipping when fewer than three apps are open. Thanks to @iltonandrew.
 - Opening Energy settings or the brightness panel no longer dims displays that were already at that brightness. Thanks to @iltonandrew.
 - Opening a Shelf tile's context menu now hides its hover tooltip, preventing the tooltip from covering menu items. Thanks to @tenbux.
+- "Copy text from screen" now has its own independent global shortcut and toggle settings in Screen capture settings, separate from "Screenshot". Thanks to @wiidede.
 
 ## [3.3.3-beta.1] - 2026-08-22
 
